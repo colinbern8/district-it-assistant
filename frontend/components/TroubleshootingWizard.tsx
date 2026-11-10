@@ -5,16 +5,20 @@
  * which view to show. The actual "what comes next" logic lives in
  * lib/workflowEngine.ts; this component just calls it and re-renders.
  */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type SetStateAction } from "react";
+import DamageView from "@/components/DamageView";
 import EscalationView from "@/components/EscalationView";
 import ResolvedView from "@/components/ResolvedView";
+import SafetyView from "@/components/SafetyView";
 import StepView from "@/components/StepView";
-import type { Answer, Workflow } from "@/lib/types";
+import { STOP_OUTCOMES, type Answer, type Workflow } from "@/lib/types";
 import {
   answerStep,
   getStep,
   goBack,
+  reportDamage,
   startSession,
+  type SessionState,
 } from "@/lib/workflowEngine";
 
 export default function TroubleshootingWizard({ workflow }: { workflow: Workflow }) {
@@ -29,26 +33,34 @@ export default function TroubleshootingWizard({ workflow }: { workflow: Workflow
     if (hasInteracted.current) headingRef.current?.focus();
   }, [session]);
 
-  const handleAnswer = (answer: Answer) => {
+  // Every handler marks the interaction, then swaps in the engine's new state.
+  const update = (next: SetStateAction<SessionState>) => {
     hasInteracted.current = true;
-    setSession((current) => answerStep(current, workflow, answer));
+    setSession(next);
   };
+  const handleAnswer = (answer: Answer) =>
+    update((current) => answerStep(current, workflow, answer));
+  const handleBack = () => update((current) => goBack(current));
+  const handleStartOver = () => update(startSession(workflow));
+  const handleDamage = () => update((current) => reportDamage(current));
 
-  const handleBack = () => {
-    hasInteracted.current = true;
-    setSession((current) => goBack(current));
-  };
-
-  const handleStartOver = () => {
-    hasInteracted.current = true;
-    setSession(startSession(workflow));
-  };
-
-  const canGoBack = session.answers.length > 0;
+  // Damage and safety outcomes stop troubleshooting: no Back or Start over.
+  const isStopped = session.outcome !== null && STOP_OUTCOMES.includes(session.outcome);
+  const canGoBack = session.answers.length > 0 && !isStopped;
 
   return (
     <div>
       <h1 className="text-lg font-semibold text-slate-600">{workflow.title}</h1>
+
+      {workflow.review_status !== "approved" && (
+        <p
+          role="note"
+          className="mt-2 rounded-lg bg-slate-200 px-3 py-2 text-sm text-slate-800"
+        >
+          <span className="font-semibold">Draft:</span> these steps have not been
+          reviewed by a district technician yet.
+        </p>
+      )}
 
       <div className="mt-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200 sm:p-8">
         {session.outcome === "RESOLVED" && <ResolvedView headingRef={headingRef} />}
@@ -61,6 +73,10 @@ export default function TroubleshootingWizard({ workflow }: { workflow: Workflow
           />
         )}
 
+        {session.outcome === "ESCALATE_DAMAGE" && <DamageView headingRef={headingRef} />}
+
+        {session.outcome === "ESCALATE_SAFETY" && <SafetyView headingRef={headingRef} />}
+
         {session.currentStepId !== null && (
           <StepView
             step={getStep(workflow, session.currentStepId)}
@@ -70,6 +86,16 @@ export default function TroubleshootingWizard({ workflow }: { workflow: Workflow
           />
         )}
       </div>
+
+      {session.currentStepId !== null && (
+        <button
+          type="button"
+          onClick={handleDamage}
+          className="mt-4 min-h-12 w-full rounded-xl border-2 border-red-700 bg-white px-4 text-base font-semibold text-red-800 hover:bg-red-50 focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-red-400 sm:w-auto"
+        >
+          My Chromebook is damaged
+        </button>
+      )}
 
       {canGoBack && (
         <div className="mt-4 flex flex-wrap gap-3">

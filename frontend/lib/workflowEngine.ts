@@ -7,8 +7,11 @@
  * when we add session logging in a later phase.
  */
 import {
-  OUTCOME_ESCALATE,
-  OUTCOME_RESOLVED,
+  CATEGORIES,
+  OUTCOME_ESCALATE_DAMAGE,
+  OUTCOMES,
+  REVIEW_STATUSES,
+  WARNING_LEVELS,
   type Answer,
   type Outcome,
   type Workflow,
@@ -32,7 +35,7 @@ export interface SessionState {
 }
 
 export function isOutcome(target: string): target is Outcome {
-  return target === OUTCOME_RESOLVED || target === OUTCOME_ESCALATE;
+  return (OUTCOMES as readonly string[]).includes(target);
 }
 
 /** Find a step by id. Throws if it is missing, because that is a data bug. */
@@ -82,15 +85,37 @@ export function goBack(state: SessionState): SessionState {
 }
 
 /**
+ * The student pressed "My Chromebook is damaged". Stop troubleshooting
+ * immediately, from any step, and keep the answers given so far.
+ */
+export function reportDamage(state: SessionState): SessionState {
+  return { ...state, currentStepId: null, outcome: OUTCOME_ESCALATE_DAMAGE };
+}
+
+/**
  * Check a workflow for authoring mistakes. Returns a list of problems;
  * an empty list means the workflow is valid.
  *
- * Checks: duplicate step ids, a missing start step, Yes/No targets that point
+ * Checks: allowed values for category / review_status / warning_level,
+ * duplicate step ids, a missing start step, Yes/No targets that point
  * nowhere, steps nobody can reach, and loops that could trap a user.
  */
 export function validateWorkflow(workflow: Workflow): string[] {
   const errors: string[] = [];
   const ids = new Set<string>();
+
+  // JSON files can contain any string, so check the fixed lists at runtime.
+  if (!CATEGORIES.some((c) => c.id === workflow.category)) {
+    errors.push(`Unknown category "${workflow.category}"`);
+  }
+  if (!REVIEW_STATUSES.includes(workflow.review_status)) {
+    errors.push(`Unknown review_status "${workflow.review_status}"`);
+  }
+  for (const step of workflow.steps) {
+    if (step.warning_level && !WARNING_LEVELS.includes(step.warning_level)) {
+      errors.push(`Step "${step.id}" has unknown warning_level "${step.warning_level}"`);
+    }
+  }
 
   for (const step of workflow.steps) {
     if (ids.has(step.id)) errors.push(`Duplicate step id "${step.id}"`);

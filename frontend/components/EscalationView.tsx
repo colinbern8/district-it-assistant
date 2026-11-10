@@ -45,10 +45,6 @@ export default function EscalationView({
         </li>
       </ol>
 
-      <p className="mt-4 text-blue-950">
-        If your Chromebook is damaged, please don&apos;t try to fix it yourself.
-      </p>
-
       {answers.length > 0 && (
         <div className="mt-6">
           <h3 className="text-lg font-semibold text-blue-950">

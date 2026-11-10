@@ -1,0 +1,70 @@
+{
+  "id": "chromebook_running_slow",
+  "version": 1,
+  "category": "browser_apps",
+  "review_status": "draft",
+  "title": "My Chromebook is really slow",
+  "summary": "Everything is laggy, or typing and scrolling are delayed.",
+  "estimated_minutes": 10,
+  "start_step": "close_tabs",
+  "includes": ["powerwash"],
+  "steps": [
+    {
+      "id": "close_tabs",
+      "title": "Close extra tabs",
+      "instructions": [
+        "Close every tab and app you aren't using right now.",
+        "Wait one minute."
+      ],
+      "question": "Is it faster now?",
+      "yes": "RESOLVED",
+      "no": "task_manager"
+    },
+    {
+      "id": "task_manager",
+      "title": "Use Task Manager",
+      "instructions": [
+        "Press the Search key and the Esc key at the same time. This opens Task Manager.",
+        "Click the Memory footprint column to see what is using the most memory.",
+        "Click a tab or app you don't need, then click End process."
+      ],
+      "question": "Is it faster now?",
+      "yes": "RESOLVED",
+      "no": "update"
+    },
+    {
+      "id": "update",
+      "title": "Install updates",
+      "instructions": [
+        "Click the time in the bottom-right corner of the screen.",
+        "If you see \"Restart to update\", click it. Updates are safe.",
+        "If you don't see it, answer No."
+      ],
+      "question": "Did it update, and is it faster now?",
+      "yes": "RESOLVED",
+      "no": "restart"
+    },
+    {
+      "id": "restart",
+      "title": "Turn it off and on again",
+      "instructions": [
+        "Press and hold the power button until the screen goes dark.",
+        "Wait 10 seconds, then press the power button once to turn it back on."
+      ],
+      "question": "Is it faster now?",
+      "yes": "RESOLVED",
+      "no": "powerwash_gate"
+    },
+    {
+      "id": "powerwash_gate",
+      "title": "Test with one tab",
+      "instructions": [
+        "Open just one tab and use it for a few minutes.",
+        "If it is only slow when many tabs are open, try keeping fewer tabs open."
+      ],
+      "question": "Is it still very slow with only one tab open?",
+      "yes": "powerwash_intro",
+      "no": "RESOLVED"
+    }
+  ]
+}

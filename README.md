@@ -1,11 +1,13 @@
 # District IT Self-Service Assistant (proof of concept)
 
-Helps students, parents, and teachers fix simple Chromebook problems
-themselves, step by step. Anything it can't fix goes to the existing
+Helps students fix simple Chromebook problems themselves, step by step. Anything it can't fix goes to the existing
 school office → Zoom technician process.
 
 **Privacy:** this proof of concept doesn't connect to district systems,
 doesn't ask for student information, and has no text inputs.
+
+**Review required:** all troubleshooting content is a draft until a district
+technician reviews it. See [`docs/safety_rules.md`](docs/safety_rules.md).
 
 ## Project layout
 
@@ -41,4 +43,6 @@ npm run lint    # code style
 npm run build   # production build (also type checks)
 ```
 
-See `docs/architecture.md` for how the pieces fit together.
+See `docs/architecture.md` for how the pieces fit together,
+`docs/troubleshooting_workflows.md` for the workflow format, and
+`docs/safety_rules.md` for the safety rules and technician review checklist.

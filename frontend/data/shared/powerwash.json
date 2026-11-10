@@ -1,0 +1,76 @@
+{
+  "id": "powerwash",
+  "review_status": "draft",
+  "entry_step": "powerwash_intro",
+  "steps": [
+    {
+      "id": "powerwash_intro",
+      "title": "Last option: Powerwash",
+      "instructions": [
+        "A Powerwash erases everything saved on this Chromebook and puts it back to factory settings.",
+        "It removes files in your Downloads folder, saved Wi-Fi networks, and settings. Files in Google Drive are safe.",
+        "After a Powerwash you must sign in again, and your Chromebook may need to reconnect to your school's management. This is called re-enrollment.",
+        "A Powerwash is NOT the same as a hardware reset. A hardware reset only restarts the hardware. A Powerwash erases the Chromebook."
+      ],
+      "warning": "A Powerwash cannot be undone. If you are not sure, answer No and get help from a technician instead.",
+      "warning_level": "data_loss",
+      "question": "Do you want to continue with a Powerwash?",
+      "yes": "powerwash_backup",
+      "no": "ESCALATE"
+    },
+    {
+      "id": "powerwash_backup",
+      "title": "Save your files first",
+      "instructions": [
+        "Open the Files app.",
+        "Click My files, then Downloads.",
+        "Drag any files you need into Google Drive (on the left side of the Files app)."
+      ],
+      "warning": "Anything left in Downloads or My files will be erased by the Powerwash.",
+      "warning_level": "data_loss",
+      "question": "Are your important files saved in Google Drive, or do you have no files to save?",
+      "yes": "powerwash_ready",
+      "no": "ESCALATE"
+    },
+    {
+      "id": "powerwash_ready",
+      "title": "Make sure you can sign back in",
+      "instructions": [
+        "After a Powerwash you need an internet connection to sign in.",
+        "You also need your full school email address and password."
+      ],
+      "question": "Are you connected to Wi-Fi, and do you know your school email and password?",
+      "yes": "powerwash_run",
+      "no": "ESCALATE"
+    },
+    {
+      "id": "powerwash_run",
+      "title": "Run the Powerwash",
+      "instructions": [
+        "Sign out of your Chromebook.",
+        "On the sign-in screen, press and hold Ctrl + Alt + Shift + R.",
+        "Click Restart.",
+        "In the box that appears, click Powerwash, then click Continue.",
+        "If you do not see a Powerwash option, or it says Powerwash is not allowed, stop and answer No."
+      ],
+      "warning": "This erases everything saved on this Chromebook. Files in Google Drive are safe.",
+      "warning_level": "data_loss",
+      "question": "Did the Chromebook restart and show a welcome or sign-in screen?",
+      "yes": "powerwash_signin",
+      "no": "ESCALATE"
+    },
+    {
+      "id": "powerwash_signin",
+      "title": "Sign back in",
+      "instructions": [
+        "Connect to Wi-Fi.",
+        "Sign in with your full school email address and password.",
+        "If the Chromebook says it is being enrolled or managed by your school, wait for it to finish.",
+        "If it asks for information you don't have, or shows an error, stop. Do not try to get past that screen."
+      ],
+      "question": "Did you sign in, and is the original problem fixed?",
+      "yes": "RESOLVED",
+      "no": "ESCALATE"
+    }
+  ]
+}

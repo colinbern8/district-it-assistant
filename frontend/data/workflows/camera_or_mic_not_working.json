@@ -1,0 +1,87 @@
+{
+  "id": "camera_or_mic_not_working",
+  "version": 1,
+  "category": "audio_camera_mic",
+  "review_status": "draft",
+  "title": "My camera or microphone isn't working",
+  "summary": "In a video call or class app, your camera is black or nobody can hear you.",
+  "estimated_minutes": 10,
+  "start_step": "check_damage",
+  "steps": [
+    {
+      "id": "check_damage",
+      "title": "Check the camera for damage",
+      "instructions": [
+        "Look at the camera at the top of your screen.",
+        "Check for cracks or broken pieces around it."
+      ],
+      "question": "Do you see any damage?",
+      "yes": "ESCALATE_DAMAGE",
+      "no": "camera_cover"
+    },
+    {
+      "id": "camera_cover",
+      "title": "Check for a camera cover",
+      "instructions": [
+        "Some Chromebooks have a small sliding cover over the camera. If yours is closed, slide it open.",
+        "Some keyboards have a microphone mute key. If yours does, press it to turn the microphone back on.",
+        "Reload the page with the Refresh key (the circle arrow on the top row)."
+      ],
+      "question": "Is it working now?",
+      "yes": "RESOLVED",
+      "no": "close_other_apps"
+    },
+    {
+      "id": "close_other_apps",
+      "title": "Close other apps using the camera",
+      "instructions": [
+        "Only one app can use the camera at a time.",
+        "Close other tabs and apps that might use the camera or microphone, like another video call.",
+        "Go back to your class app and reload the page."
+      ],
+      "question": "Is it working now?",
+      "yes": "RESOLVED",
+      "no": "camera_app"
+    },
+    {
+      "id": "camera_app",
+      "title": "Test with the Camera app",
+      "instructions": [
+        "Open the Launcher by clicking the circle in the bottom-left corner of the screen.",
+        "Open the Camera app.",
+        "Check if you can see yourself. Then close the Camera app.",
+        "If only your microphone has a problem, answer Yes."
+      ],
+      "question": "Does the Camera app show your picture?",
+      "yes": "site_permissions",
+      "no": "ESCALATE"
+    },
+    {
+      "id": "site_permissions",
+      "title": "Check the website's permissions",
+      "instructions": [
+        "Go back to the website you were using.",
+        "Click the icon just left of the website address. It may look like a lock or two sliders.",
+        "Find Camera and Microphone. If either one says Block and you can change it, choose Allow.",
+        "Reload the page."
+      ],
+      "warning": "If you can't change these settings, your school controls them. Do not try to get around them.",
+      "warning_level": "caution",
+      "question": "Is it working now?",
+      "yes": "RESOLVED",
+      "no": "restart"
+    },
+    {
+      "id": "restart",
+      "title": "Turn it off and on again",
+      "instructions": [
+        "Press and hold the power button until the screen goes dark.",
+        "Wait 10 seconds, then press the power button once to turn it back on.",
+        "Sign in and open your class app again."
+      ],
+      "question": "Is it working now?",
+      "yes": "RESOLVED",
+      "no": "ESCALATE"
+    }
+  ]
+}
