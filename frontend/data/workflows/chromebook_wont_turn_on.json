@@ -1,0 +1,98 @@
+{
+  "id": "chromebook_wont_turn_on",
+  "version": 1,
+  "category": "power_startup",
+  "review_status": "draft",
+  "title": "My Chromebook won't turn on",
+  "summary": "Nothing happens when you press the power button, or the screen stays black.",
+  "estimated_minutes": 40,
+  "start_step": "check_safety",
+  "steps": [
+    {
+      "id": "check_safety",
+      "title": "Safety check first",
+      "instructions": [
+        "Look at your Chromebook. Do NOT touch it if it feels very hot.",
+        "Check if the bottom is bulging or the case is being pushed apart.",
+        "Check for smoke or a burning smell."
+      ],
+      "question": "Do you notice any of these: bulging, very hot, smoke, or a burning smell?",
+      "yes": "ESCALATE_SAFETY",
+      "no": "check_damage"
+    },
+    {
+      "id": "check_damage",
+      "title": "Check for damage",
+      "instructions": [
+        "Look closely at your Chromebook.",
+        "Check for a cracked screen, liquid spills, missing keys, or a broken hinge."
+      ],
+      "question": "Do you see any damage?",
+      "yes": "ESCALATE_DAMAGE",
+      "no": "press_power"
+    },
+    {
+      "id": "press_power",
+      "title": "Open the lid and press power",
+      "instructions": [
+        "Open the lid all the way. Some Chromebooks turn on when you open the lid.",
+        "Press the power button once.",
+        "Wait 10 seconds."
+      ],
+      "question": "Did it turn on and show the sign-in screen or your desktop?",
+      "yes": "RESOLVED",
+      "no": "brightness"
+    },
+    {
+      "id": "brightness",
+      "title": "Turn up the screen brightness",
+      "instructions": [
+        "The screen may be on but turned all the way down.",
+        "Find the Brightness up key on the top row of keys. It looks like a large sun.",
+        "Press it 5 to 10 times."
+      ],
+      "question": "Can you see the screen now?",
+      "yes": "RESOLVED",
+      "no": "check_charger"
+    },
+    {
+      "id": "check_charger",
+      "title": "Check the charger",
+      "instructions": [
+        "Look at the whole charger cable and both plugs.",
+        "Look for cuts, frayed wires, bent plugs, or missing pieces."
+      ],
+      "question": "Do you see any damage on the charger?",
+      "yes": "ESCALATE_DAMAGE",
+      "no": "charge"
+    },
+    {
+      "id": "charge",
+      "title": "Charge for 30 minutes",
+      "instructions": [
+        "Push the charger plug firmly into the Chromebook.",
+        "Push the other end firmly into a wall outlet. If one outlet doesn't seem to work, try a different one.",
+        "Leave it plugged in for 30 minutes.",
+        "Press the power button."
+      ],
+      "question": "Did it turn on?",
+      "yes": "RESOLVED",
+      "no": "hardware_reset"
+    },
+    {
+      "id": "hardware_reset",
+      "title": "Do a hardware reset",
+      "instructions": [
+        "Keep the charger plugged in.",
+        "Press and hold the Refresh key (the circle arrow on the top row of keys).",
+        "While holding Refresh, tap the power button once.",
+        "When the Chromebook starts, let go of Refresh."
+      ],
+      "warning": "A hardware reset is NOT a Powerwash. Your account stays on the Chromebook, but files saved only in your Downloads folder might be deleted. Files in Google Drive are safe.",
+      "warning_level": "caution",
+      "question": "Did it turn on?",
+      "yes": "RESOLVED",
+      "no": "ESCALATE"
+    }
+  ]
+}

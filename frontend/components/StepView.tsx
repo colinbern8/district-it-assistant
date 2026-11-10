@@ -1,5 +1,5 @@
 import type { Ref } from "react";
-import type { Answer, WorkflowStep } from "@/lib/types";
+import type { Answer, WarningLevel, WorkflowStep } from "@/lib/types";
 
 interface StepViewProps {
   step: WorkflowStep;
@@ -30,15 +30,7 @@ export default function StepView({
       </h2>
 
       {/* Warnings go ABOVE the instructions so they're read before acting. */}
-      {step.warning && (
-        <div
-          role="note"
-          className="mt-4 rounded-lg border-l-4 border-amber-500 bg-amber-50 p-4 text-amber-900"
-        >
-          <span className="font-semibold">Before you start: </span>
-          {step.warning}
-        </div>
-      )}
+      {step.warning && <StepWarning level={step.warning_level} text={step.warning} />}
 
       <ol className="mt-4 list-decimal space-y-2 pl-6 text-lg text-slate-800">
         {step.instructions.map((instruction) => (
@@ -55,6 +47,29 @@ export default function StepView({
           <AnswerButton label="No" onClick={() => onAnswer("no")} />
         </div>
       </fieldset>
+    </div>
+  );
+}
+
+/**
+ * Yellow "caution" box, or a red "data_loss" box for steps that erase data
+ * (Powerwash), so the two can't be confused with each other.
+ */
+function StepWarning({ level = "caution", text }: { level?: WarningLevel; text: string }) {
+  const isDataLoss = level === "data_loss";
+  return (
+    <div
+      role="note"
+      className={
+        isDataLoss
+          ? "mt-4 rounded-lg border-l-4 border-red-600 bg-red-50 p-4 text-red-900"
+          : "mt-4 rounded-lg border-l-4 border-amber-500 bg-amber-50 p-4 text-amber-900"
+      }
+    >
+      <span className="font-semibold">
+        {isDataLoss ? "Warning, this erases data: " : "Before you start: "}
+      </span>
+      {text}
     </div>
   );
 }

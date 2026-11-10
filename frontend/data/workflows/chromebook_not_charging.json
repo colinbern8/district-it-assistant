@@ -1,0 +1,93 @@
+{
+  "id": "chromebook_not_charging",
+  "version": 1,
+  "category": "power_startup",
+  "review_status": "draft",
+  "title": "My Chromebook won't charge",
+  "summary": "Your Chromebook turns on, but the battery won't charge when you plug it in.",
+  "estimated_minutes": 10,
+  "start_step": "check_safety",
+  "steps": [
+    {
+      "id": "check_safety",
+      "title": "Safety check first",
+      "instructions": [
+        "Look at your Chromebook and charger. Do NOT touch them if they feel very hot.",
+        "Check if the bottom of the Chromebook is bulging or the case is being pushed apart.",
+        "Check for smoke or a burning smell."
+      ],
+      "question": "Do you notice any of these: bulging, very hot, smoke, or a burning smell?",
+      "yes": "ESCALATE_SAFETY",
+      "no": "check_damage"
+    },
+    {
+      "id": "check_damage",
+      "title": "Check for damage",
+      "instructions": [
+        "Look at the whole charger cable and both plugs.",
+        "Look at the charging port on the Chromebook.",
+        "Check for cuts, frayed wires, bent plugs, or a loose or broken port."
+      ],
+      "question": "Do you see any damage?",
+      "yes": "ESCALATE_DAMAGE",
+      "no": "have_charger"
+    },
+    {
+      "id": "have_charger",
+      "title": "Use your own charger",
+      "instructions": [
+        "Use the charger that came with your Chromebook."
+      ],
+      "question": "Do you have your Chromebook's charger?",
+      "yes": "reconnect",
+      "no": "ESCALATE"
+    },
+    {
+      "id": "reconnect",
+      "title": "Plug it back in firmly",
+      "instructions": [
+        "Unplug the charger from the Chromebook and from the wall.",
+        "Plug it firmly into the wall outlet, then firmly into the Chromebook.",
+        "Look at the battery icon in the bottom-right corner of the screen. A lightning bolt means it is charging."
+      ],
+      "question": "Does the battery icon show it is charging?",
+      "yes": "RESOLVED",
+      "no": "other_outlet"
+    },
+    {
+      "id": "other_outlet",
+      "title": "Try a different outlet",
+      "instructions": [
+        "Plug the charger into a different wall outlet.",
+        "Wait one minute and look at the battery icon again."
+      ],
+      "question": "Is it charging now?",
+      "yes": "RESOLVED",
+      "no": "other_port"
+    },
+    {
+      "id": "other_port",
+      "title": "Try the other charging port",
+      "instructions": [
+        "Some Chromebooks have a charging port on both sides.",
+        "If yours does, plug the charger into the other port.",
+        "If yours has only one charging port, answer No."
+      ],
+      "question": "Is it charging now?",
+      "yes": "RESOLVED",
+      "no": "restart"
+    },
+    {
+      "id": "restart",
+      "title": "Turn it off and on again",
+      "instructions": [
+        "Keep the charger plugged in.",
+        "Press and hold the power button until the screen goes dark.",
+        "Wait 10 seconds, then press the power button once to turn it back on."
+      ],
+      "question": "Is it charging now?",
+      "yes": "RESOLVED",
+      "no": "ESCALATE"
+    }
+  ]
+}

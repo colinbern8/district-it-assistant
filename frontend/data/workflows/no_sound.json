@@ -1,0 +1,84 @@
+{
+  "id": "no_sound",
+  "version": 1,
+  "category": "audio_camera_mic",
+  "review_status": "draft",
+  "title": "I can't hear any sound",
+  "summary": "No sound from videos, class apps, or your Chromebook's speakers.",
+  "estimated_minutes": 5,
+  "start_step": "volume_keys",
+  "steps": [
+    {
+      "id": "volume_keys",
+      "title": "Turn up the volume",
+      "instructions": [
+        "Start playing a video or sound so you can test.",
+        "Find the Volume up key on the top row of keys. It looks like a speaker with sound waves.",
+        "Press it a few times. This also turns off mute."
+      ],
+      "question": "Can you hear sound now?",
+      "yes": "RESOLVED",
+      "no": "app_volume"
+    },
+    {
+      "id": "app_volume",
+      "title": "Check the volume in the app",
+      "instructions": [
+        "Look for a speaker or volume button inside the video or app.",
+        "Make sure it is not muted and is turned up."
+      ],
+      "question": "Can you hear sound now?",
+      "yes": "RESOLVED",
+      "no": "tab_muted"
+    },
+    {
+      "id": "tab_muted",
+      "title": "Check if the website is muted",
+      "instructions": [
+        "Look at the browser tab for the website.",
+        "A speaker with a line through it on the tab means the website is muted.",
+        "If you see it, right-click the tab and click Unmute site."
+      ],
+      "question": "Can you hear sound now?",
+      "yes": "RESOLVED",
+      "no": "headphones"
+    },
+    {
+      "id": "headphones",
+      "title": "Test without headphones",
+      "instructions": [
+        "If headphones are plugged in, unplug them.",
+        "If you use Bluetooth headphones, turn them off.",
+        "Listen for sound from the Chromebook's speakers.",
+        "If you don't use headphones, answer No."
+      ],
+      "question": "Can you hear sound from the speakers now?",
+      "yes": "headphones_reconnect",
+      "no": "restart"
+    },
+    {
+      "id": "headphones_reconnect",
+      "title": "Reconnect your headphones",
+      "instructions": [
+        "Your speakers work, so the problem is with the headphones.",
+        "Plug wired headphones back in firmly, all the way.",
+        "For Bluetooth headphones, turn them back on and wait for them to connect."
+      ],
+      "question": "Do your headphones work now?",
+      "yes": "RESOLVED",
+      "no": "ESCALATE"
+    },
+    {
+      "id": "restart",
+      "title": "Turn it off and on again",
+      "instructions": [
+        "Press and hold the power button until the screen goes dark.",
+        "Wait 10 seconds, then press the power button once to turn it back on.",
+        "Sign in and play a video or sound to test."
+      ],
+      "question": "Can you hear sound now?",
+      "yes": "RESOLVED",
+      "no": "ESCALATE"
+    }
+  ]
+}

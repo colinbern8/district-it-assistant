@@ -1,0 +1,71 @@
+{
+  "id": "website_or_app_problem",
+  "version": 1,
+  "category": "browser_apps",
+  "review_status": "draft",
+  "title": "A website or app isn't working right",
+  "summary": "A page shows \"Aw, Snap!\", won't finish loading, or an app keeps crashing.",
+  "estimated_minutes": 10,
+  "start_step": "reload",
+  "includes": ["powerwash"],
+  "steps": [
+    {
+      "id": "reload",
+      "title": "Reload the page or app",
+      "instructions": [
+        "For a website, press the Refresh key (the circle arrow on the top row).",
+        "For an app, close it and open it again."
+      ],
+      "warning": "If the page says the website is blocked, it is blocked on purpose. Do not try to get around it. If you need it for class, tell your teacher.",
+      "warning_level": "caution",
+      "question": "Is it working now?",
+      "yes": "RESOLVED",
+      "no": "other_sites"
+    },
+    {
+      "id": "other_sites",
+      "title": "Check other websites",
+      "instructions": [
+        "Open a new tab.",
+        "Try two other websites you use often."
+      ],
+      "question": "Do other websites load?",
+      "yes": "close_tabs",
+      "no": "ESCALATE"
+    },
+    {
+      "id": "close_tabs",
+      "title": "Close extra tabs and apps",
+      "instructions": [
+        "Close tabs and apps you aren't using right now.",
+        "Go back to the website or app and try again."
+      ],
+      "question": "Is it working now?",
+      "yes": "RESOLVED",
+      "no": "restart"
+    },
+    {
+      "id": "restart",
+      "title": "Turn it off and on again",
+      "instructions": [
+        "Press and hold the power button until the screen goes dark.",
+        "Wait 10 seconds, then press the power button once to turn it back on.",
+        "Sign in and try the website or app again."
+      ],
+      "question": "Is it working now?",
+      "yes": "RESOLVED",
+      "no": "powerwash_gate"
+    },
+    {
+      "id": "powerwash_gate",
+      "title": "Is it one app, or many?",
+      "instructions": [
+        "Think about where the problem happens.",
+        "Is it only one website or app, or do many websites and apps keep crashing?"
+      ],
+      "question": "Does it happen in many websites or apps, not just one?",
+      "yes": "powerwash_intro",
+      "no": "ESCALATE"
+    }
+  ]
+}

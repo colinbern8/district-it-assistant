@@ -1,0 +1,92 @@
+{
+  "id": "cant_sign_in",
+  "version": 1,
+  "category": "login_account",
+  "review_status": "draft",
+  "title": "I can't sign in",
+  "summary": "Your password isn't accepted, or signing in gets stuck.",
+  "estimated_minutes": 5,
+  "start_step": "security_check",
+  "steps": [
+    {
+      "id": "security_check",
+      "title": "Is your account safe?",
+      "instructions": [
+        "Think about whether anyone else might know your password.",
+        "Think about whether you've seen messages about sign-ins or changes you didn't make."
+      ],
+      "warning": "Never share your password with anyone, including friends. This tool will never ask for it.",
+      "warning_level": "caution",
+      "question": "Do you think someone else knows your password or has used your account?",
+      "yes": "ESCALATE",
+      "no": "screen_check"
+    },
+    {
+      "id": "screen_check",
+      "title": "Check for special screens",
+      "instructions": [
+        "Look at your screen for any of these messages: \"OS verification is off\", \"ChromeOS is missing or damaged\", or a message that the device is disabled.",
+        "If you see one, do NOT press any keys."
+      ],
+      "question": "Do you see one of these messages?",
+      "yes": "ESCALATE",
+      "no": "forgot_or_locked"
+    },
+    {
+      "id": "forgot_or_locked",
+      "title": "Forgot your password?",
+      "instructions": [
+        "Only your school can reset a password or unlock an account."
+      ],
+      "question": "Did you forget your password, or does the screen say your account is locked?",
+      "yes": "ESCALATE",
+      "no": "caps_lock"
+    },
+    {
+      "id": "caps_lock",
+      "title": "Check Caps Lock",
+      "instructions": [
+        "Look for an up-arrow icon near the password box or at the bottom of the screen. It means Caps Lock is on.",
+        "If it is on, press Alt + Search to turn it off.",
+        "Type your password again carefully."
+      ],
+      "question": "Did you sign in?",
+      "yes": "RESOLVED",
+      "no": "full_email"
+    },
+    {
+      "id": "full_email",
+      "title": "Use your full school email",
+      "instructions": [
+        "Make sure you typed your full school email address, including everything after the @ sign.",
+        "Type your password again."
+      ],
+      "question": "Did you sign in?",
+      "yes": "RESOLVED",
+      "no": "wifi_check"
+    },
+    {
+      "id": "wifi_check",
+      "title": "Check the internet connection",
+      "instructions": [
+        "Look at the Wi-Fi icon in the bottom-right corner of the sign-in screen.",
+        "Signing in usually needs an internet connection."
+      ],
+      "question": "Does the Wi-Fi icon show you are connected?",
+      "yes": "restart",
+      "no": "ESCALATE"
+    },
+    {
+      "id": "restart",
+      "title": "Turn it off and on again",
+      "instructions": [
+        "Press and hold the power button until the screen goes dark.",
+        "Wait 10 seconds, then press the power button once to turn it back on.",
+        "Try signing in again."
+      ],
+      "question": "Did you sign in?",
+      "yes": "RESOLVED",
+      "no": "ESCALATE"
+    }
+  ]
+}
