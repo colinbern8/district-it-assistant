@@ -1,0 +1,33 @@
+{
+  "categories": [
+    {
+      "id": "power_startup",
+      "label": "Power and startup",
+      "workflows": [
+        "chromebook_frozen",
+        "chromebook_wont_turn_on",
+        "chromebook_not_charging"
+      ]
+    },
+    {
+      "id": "wifi_connectivity",
+      "label": "Wi-Fi and connectivity",
+      "workflows": []
+    },
+    {
+      "id": "audio_camera_mic",
+      "label": "Audio, camera, and microphone",
+      "workflows": ["no_sound", "camera_or_mic_not_working"]
+    },
+    {
+      "id": "browser_apps",
+      "label": "Browser and applications",
+      "workflows": ["website_or_app_problem", "chromebook_running_slow"]
+    },
+    {
+      "id": "login_account",
+      "label": "Login and account access",
+      "workflows": ["cant_sign_in"]
+    }
+  ]
+}

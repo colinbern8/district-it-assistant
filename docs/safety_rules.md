@@ -1,7 +1,8 @@
 # Safety rules and technician review checklist
 
 **Status: DRAFT.** Every workflow and the shared Powerwash procedure are marked
-`"review_status": "draft"` and show a "Draft" banner in the app. A district
+`"review_status": "draft"` and show a "Draft" banner in the app. With
+`APP_ENV=production`, drafts are not served at all. A district
 technician must review and approve them before real deployment.
 
 Scope: Chromebook troubleshooting for students only.
@@ -53,19 +54,24 @@ Before a Powerwash, students must confirm, in order: they want to continue,
 their files are in Google Drive, and they have Wi-Fi plus their school email
 and password. Any "No" goes to a technician.
 
-## 5. Automated checks (`npm test`)
+## 5. Automated checks (`pytest`, in `tests/test_safety_rules.py`)
 
 - Every power workflow starts with a safety check (→ `ESCALATE_SAFETY`) followed by a damage check (→ `ESCALATE_DAMAGE`).
 - No workflow starts with a Powerwash step.
 - Only the three workflows above can reach Powerwash.
 - The Powerwash procedure is still `draft` and its run step has a `data_loss` warning.
-- Every workflow uses known categories, outcomes, and warning levels, with no broken links, unreachable steps, or loops.
+- Only "Yes" can lead to the damage or safety outcomes, so habit-clicking "No" never skips a hazard.
+- Powerwash is only reached after a restart step was offered.
+- Hardware reset warnings are yellow and say "NOT a Powerwash".
+- No step recommends Developer Mode or recovery.
+- The backend refuses to start if any workflow has an unknown category, outcome, or warning level, a broken link, an unreachable step, or a loop (`tests/test_knowledge_base.py`).
+- In production (`APP_ENV=production`), only technician-approved workflows are served. A workflow is approved only if the Powerwash procedure it includes is approved too (`tests/test_api.py`).
 
 ## 6. Technician review checklist
 
 Please verify against the district's Chromebook models and admin settings:
 
-- [ ] **Powerwash** (`frontend/data/shared/powerwash.json`): Is Powerwash allowed by policy on student devices? Is Ctrl + Alt + Shift + R → Restart → Powerwash correct? What do students see during re-enrollment?
+- [ ] **Powerwash** (`knowledge_base/shared/powerwash.json`): Is Powerwash allowed by policy on student devices? Is Ctrl + Alt + Shift + R → Restart → Powerwash correct? What do students see during re-enrollment?
 - [ ] **Hardware reset**: Is Refresh + Power correct for all district models (tablets/convertibles may differ)?
 - [ ] **Battery safety wording** (`SafetyView`): matches district/building safety guidance?
 - [ ] **Camera/microphone permissions**: can students change site permissions, or are they policy-controlled?

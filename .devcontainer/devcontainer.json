@@ -1,0 +1,37 @@
+{
+  "name": "District IT Self-Service Assistant",
+  // Python 3.12 on Debian, plus Node.js 22 for the Next.js frontend.
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.12-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" }
+  },
+
+  // Install Python and Node packages once, when the codespace is created.
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+
+  // Drafts are visible while developing. Production must use APP_ENV=production.
+  "containerEnv": {
+    "APP_ENV": "development"
+  },
+
+  "forwardPorts": [3000, 8000],
+  "portsAttributes": {
+    "3000": { "label": "Frontend (Next.js)", "onAutoForward": "openBrowser" },
+    "8000": { "label": "API (FastAPI)", "onAutoForward": "notify" }
+  },
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python",
+        "python.testing.pytestEnabled": true
+      },
+      "extensions": [
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "dbaeumer.vscode-eslint",
+        "bradlc.vscode-tailwindcss"
+      ]
+    }
+  }
+}

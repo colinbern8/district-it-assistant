@@ -1,8 +1,8 @@
 import Link from "next/link";
-import type { Workflow } from "@/lib/types";
+import type { WorkflowSummary } from "@/lib/types";
 
 /** A clickable card on the home page that starts one workflow. */
-export default function WorkflowCard({ workflow }: { workflow: Workflow }) {
+export default function WorkflowCard({ workflow }: { workflow: WorkflowSummary }) {
   return (
     <Link
       href={`/troubleshoot/${workflow.id}`}

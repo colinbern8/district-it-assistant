@@ -5,13 +5,13 @@
  * current state and returns a NEW state object (it never edits the old one).
  * That makes the logic easy to unit test and easy to reuse later, for example
  * when we add session logging in a later phase.
+ *
+ * Checking workflow CONTENT for mistakes (broken links, loops, safety rules)
+ * is the backend's job: see backend/services/knowledge_base.py and tests/.
  */
 import {
-  CATEGORIES,
   OUTCOME_ESCALATE_DAMAGE,
   OUTCOMES,
-  REVIEW_STATUSES,
-  WARNING_LEVELS,
   type Answer,
   type Outcome,
   type Workflow,
@@ -90,77 +90,4 @@ export function goBack(state: SessionState): SessionState {
  */
 export function reportDamage(state: SessionState): SessionState {
   return { ...state, currentStepId: null, outcome: OUTCOME_ESCALATE_DAMAGE };
-}
-
-/**
- * Check a workflow for authoring mistakes. Returns a list of problems;
- * an empty list means the workflow is valid.
- *
- * Checks: allowed values for category / review_status / warning_level,
- * duplicate step ids, a missing start step, Yes/No targets that point
- * nowhere, steps nobody can reach, and loops that could trap a user.
- */
-export function validateWorkflow(workflow: Workflow): string[] {
-  const errors: string[] = [];
-  const ids = new Set<string>();
-
-  // JSON files can contain any string, so check the fixed lists at runtime.
-  if (!CATEGORIES.some((c) => c.id === workflow.category)) {
-    errors.push(`Unknown category "${workflow.category}"`);
-  }
-  if (!REVIEW_STATUSES.includes(workflow.review_status)) {
-    errors.push(`Unknown review_status "${workflow.review_status}"`);
-  }
-  for (const step of workflow.steps) {
-    if (step.warning_level && !WARNING_LEVELS.includes(step.warning_level)) {
-      errors.push(`Step "${step.id}" has unknown warning_level "${step.warning_level}"`);
-    }
-  }
-
-  for (const step of workflow.steps) {
-    if (ids.has(step.id)) errors.push(`Duplicate step id "${step.id}"`);
-    ids.add(step.id);
-  }
-
-  if (!ids.has(workflow.start_step)) {
-    errors.push(`start_step "${workflow.start_step}" is not a step`);
-    return errors; // The checks below need a valid start.
-  }
-
-  for (const step of workflow.steps) {
-    for (const target of [step.yes, step.no]) {
-      if (!isOutcome(target) && !ids.has(target)) {
-        errors.push(`Step "${step.id}" points to unknown target "${target}"`);
-      }
-    }
-  }
-  if (errors.length > 0) return errors;
-
-  // Walk every path from the start step (depth-first search).
-  // "visiting" holds the steps on the current path, so seeing one of them
-  // again means the path loops back on itself.
-  const reached = new Set<string>();
-  const visiting = new Set<string>();
-
-  const walk = (stepId: string) => {
-    if (visiting.has(stepId)) {
-      errors.push(`Loop detected: step "${stepId}" can lead back to itself`);
-      return;
-    }
-    if (reached.has(stepId)) return;
-
-    reached.add(stepId);
-    visiting.add(stepId);
-    const step = getStep(workflow, stepId);
-    for (const target of [step.yes, step.no]) {
-      if (!isOutcome(target)) walk(target);
-    }
-    visiting.delete(stepId);
-  };
-  walk(workflow.start_step);
-
-  for (const id of ids) {
-    if (!reached.has(id)) errors.push(`Step "${id}" can never be reached`);
-  }
-  return errors;
 }

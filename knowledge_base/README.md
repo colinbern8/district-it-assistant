@@ -1,10 +1,22 @@
 # Knowledge base
 
-Workflow JSON files will live here from Phase 2, when the backend starts
-serving them. Until then they are bundled with the frontend:
+All troubleshooting content. The FastAPI backend loads, merges, and validates
+these files at startup; if anything is wrong, it refuses to start and lists
+every problem.
 
-- `frontend/data/workflows/`: one file per workflow (8 so far)
-- `frontend/data/shared/`: shared procedures such as Powerwash
+```
+knowledge_base/
+├── catalog.json        Categories, their labels, and which workflows are
+│                       published, in the order students see them
+├── workflows/*.json    One file per workflow; the file name must equal its "id"
+└── shared/*.json       Shared procedures (Powerwash), included by workflows
+```
 
-The file format is documented in `../docs/troubleshooting_workflows.md` and the
-safety rules in `../docs/safety_rules.md`.
+- **Publish** a workflow by listing its id in `catalog.json`.
+- **Approve** a workflow by setting `"review_status": "approved"` after
+  technician review. In production (`APP_ENV=production`) only approved
+  workflows are shown.
+
+File format: `../docs/troubleshooting_workflows.md`.
+Safety rules: `../docs/safety_rules.md`.
+After editing, run `.venv/bin/pytest` from the project root.
