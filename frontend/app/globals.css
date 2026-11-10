@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+/* Light theme only for the proof of concept. */
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: #f1f5f9; /* Tailwind slate-100 */
+  color: #0f172a; /* Tailwind slate-900 */
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}

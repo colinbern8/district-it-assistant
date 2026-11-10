@@ -1,0 +1,22 @@
+# Node / Next.js
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# Python (Phase 2)
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Secrets: never commit these
+.env
+.env.*
+*.pem
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

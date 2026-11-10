@@ -1,0 +1,71 @@
+{
+  "id": "chromebook_frozen",
+  "version": 1,
+  "title": "My Chromebook is frozen",
+  "summary": "The screen is stuck, or the Chromebook won't respond when you click or type.",
+  "estimated_minutes": 10,
+  "start_step": "check_damage",
+  "steps": [
+    {
+      "id": "check_damage",
+      "title": "Check for damage first",
+      "instructions": [
+        "Look closely at your Chromebook.",
+        "Check for a cracked screen, liquid spills, missing keys, or a broken hinge."
+      ],
+      "question": "Do you see any damage?",
+      "yes": "ESCALATE",
+      "no": "close_app"
+    },
+    {
+      "id": "close_app",
+      "title": "Close the app that is stuck",
+      "instructions": [
+        "Press the Search key and the Esc key at the same time. This opens Task Manager.",
+        "Click the app or tab that says \"Not responding\", or the one you were using when it froze.",
+        "Click \"End process\"."
+      ],
+      "question": "Is your Chromebook working normally now?",
+      "yes": "RESOLVED",
+      "no": "restart"
+    },
+    {
+      "id": "restart",
+      "title": "Turn it off and on again",
+      "instructions": [
+        "Press and hold the power button until the screen goes dark. This can take up to 10 seconds.",
+        "Wait 10 seconds.",
+        "Press the power button once to turn it back on, then sign in."
+      ],
+      "question": "Did it start up and work normally?",
+      "yes": "RESOLVED",
+      "no": "charge"
+    },
+    {
+      "id": "charge",
+      "title": "Charge the battery",
+      "instructions": [
+        "Plug the charger into the Chromebook and into a wall outlet.",
+        "Wait 15 minutes.",
+        "Press the power button to turn it on."
+      ],
+      "question": "Did it turn on and work normally?",
+      "yes": "RESOLVED",
+      "no": "hardware_reset"
+    },
+    {
+      "id": "hardware_reset",
+      "title": "Do a hardware reset",
+      "instructions": [
+        "Turn off the Chromebook by holding the power button until the screen goes dark.",
+        "Press and hold the Refresh key (the circle arrow above the number 3 or 4).",
+        "While holding Refresh, tap the power button once.",
+        "When the Chromebook starts, let go of Refresh."
+      ],
+      "warning": "A hardware reset can delete files saved only in your Downloads folder. Files in Google Drive are safe. Do NOT use \"Powerwash\" unless a technician tells you to.",
+      "question": "Is your Chromebook working normally now?",
+      "yes": "RESOLVED",
+      "no": "ESCALATE"
+    }
+  ]
+}
