@@ -1,62 +1,108 @@
 # Architecture
 
-## Phase 1 / 1.5 (current): frontend only
+## Phase 2 (current): Next.js frontend + FastAPI backend
 
 ```
-Browser
-  │
-  ▼
-Next.js app (frontend/)
-  ├── app/page.tsx ─────────────── Home: help topics grouped by category
-  ├── app/damaged/page.tsx ─────── Damaged / lost / stolen → school office
-  ├── app/troubleshoot/[workflowId]/page.tsx
-  │       Server component. Looks up the workflow by id, then renders:
-  │       └── components/TroubleshootingWizard.tsx  ("use client")
-  │             Holds the session state. Shows one of:
-  │             ├── StepView        (instructions + Yes/No)
-  │             ├── ResolvedView    (outcome RESOLVED)
-  │             ├── EscalationView  (outcome ESCALATE → school office / Zoom)
-  │             ├── DamageView      (outcome ESCALATE_DAMAGE, or the damage button)
-  │             └── SafetyView      (outcome ESCALATE_SAFETY: battery hazard)
-  │
-  ├── lib/workflowEngine.ts ── Pure logic: start, answer, back, reportDamage, validate
-  ├── lib/workflows.ts ─────── Loads workflows and merges shared procedures (only file that changes in Phase 2)
-  ├── data/workflows/*.json ── One file per workflow
-  └── data/shared/*.json ───── Shared procedures (Powerwash), reviewed once
+ Student's browser
+       │  only ever talks to Next.js
+       ▼
+ Next.js server (frontend/, port 3000)
+   ├─ app/page.tsx ───────────────────► GET /api/workflows        ┐
+   ├─ app/troubleshoot/[workflowId] ──► GET /api/workflows/{id}   │ server-to-server,
+   │     └─ TroubleshootingWizard ("use client", unchanged)       │ uncached, 5 s timeout
+   ├─ app/damaged/page.tsx  (fully static: never calls the API)   │
+   └─ lib/workflows.ts  (API client)                              ▼
+                                         FastAPI (backend/, port 8000)
+                                           ├─ main.py           app + /api/health
+                                           ├─ routes/workflows.py
+                                           ├─ services/knowledge_base.py
+                                           │    load → merge Powerwash → validate
+                                           └─ models.py         Pydantic shapes
+                                                   │
+                                                   ▼
+                                         knowledge_base/
+                                           ├─ catalog.json   order + publication
+                                           ├─ workflows/*.json
+                                           └─ shared/powerwash.json
 ```
 
-### Data flow for one click
+### Who does what
 
-1. The user clicks **No** in `StepView`.
-2. `StepView` calls `onAnswer("no")`, a function passed in by `TroubleshootingWizard`.
-3. The wizard calls `answerStep(currentState, workflow, "no")` from the engine.
-4. The engine looks up the step's `no` target. A step id moves to that step;
-   an outcome (`RESOLVED`, `ESCALATE`, `ESCALATE_DAMAGE`, `ESCALATE_SAFETY`)
-   ends the session.
-5. The wizard stores the new state, and React re-renders the matching view.
+| Job | Where |
+|---|---|
+| Store workflow content | `knowledge_base/` |
+| Decide order and what is published | `knowledge_base/catalog.json` |
+| Load, merge shared steps, validate | `backend/services/knowledge_base.py` (single source of truth) |
+| Hide drafts in production | `backend/settings.py` (`APP_ENV`) + `KnowledgeBase.is_visible()` |
+| Check content and safety rules | `tests/` (pytest) |
+| Navigation (answer, back, damage) | `frontend/lib/workflowEngine.ts` (tested with Vitest) |
+| Screens | `frontend/components/` |
+
+### Draft, approved, and published
+
+| Term | Set where | Meaning |
+|---|---|---|
+| **Draft** | `"review_status": "draft"` in the file | Not yet reviewed by a technician |
+| **Approved** | `"review_status": "approved"` | Reviewed. A workflow only counts as approved if every shared procedure it includes (e.g. Powerwash) is approved too. |
+| **Published** | Listed in `catalog.json` | Intended to appear in the app |
+| **Visible** | Computed | Published **and** (approved, **or** `APP_ENV` is `development`/`demo`) |
+
+In production, a hidden workflow returns the same 404 as one that doesn't exist.
+
+### What happens on one page visit
+
+1. The browser asks Next.js for `/troubleshoot/chromebook_frozen`.
+2. Next.js immediately sends the prerendered shell: header, footer, and a gray
+   loading placeholder. This shell needs no URL data and no API, so it is instant.
+3. Inside `<Suspense>`, `WorkflowContent` reads `params`, then calls
+   `getWorkflow("chromebook_frozen")`, which makes one uncached `fetch` to FastAPI.
+4. FastAPI returns the workflow with the Powerwash steps already merged in.
+5. Next.js streams the finished `TroubleshootingWizard` into the page, replacing
+   the placeholder. From here on, every Yes/No click happens in the browser.
+
+### When the backend fails
+
+| Problem | What the student sees |
+|---|---|
+| Backend not running | "Troubleshooting is not available right now. Go to your school office…" |
+| Backend too slow (over `API_TIMEOUT_MS`) | Same message, after the timeout |
+| Backend returns an error | Same message |
+| Workflow unknown, or a draft in production | "We couldn't find that help topic" |
+
+The header, the "Damaged, lost, or stolen?" card, and the `/damaged` page are
+outside the API-dependent parts, so they always work.
+
+### Why `<Suspense>` around `params`
+
+With Partial Prefetching, clicking a link first shows a prerendered **App
+Shell** that is shared by every URL of that route. Anything that reads the URL
+(`params`) can't be in that shell. Reading `params` at the top of the page made
+the whole page URL-dependent, so Next.js warned that navigation couldn't be
+instant. Moving the `params` read (and the API call) inside `<Suspense>` lets
+the shell, with the placeholder, be prerendered and shown instantly.
 
 ### Design decisions
 
 | Decision | Why |
 |---|---|
-| Workflow logic lives in plain functions, not in components | It can be unit tested without a browser, and logging (Phase 4) can hook in at one place. |
-| Workflows are data (JSON), not code | Non-programmers can edit content, and the same files can be served by the Python backend later. |
-| JSON uses `snake_case` | It matches Python and Firestore conventions, so no field renaming is needed between layers. |
-| Escalation shows what the user already tried | The Zoom technician doesn't repeat steps, which shortens sessions. |
-| No text inputs anywhere | Nobody can type student information into the app by accident. |
-| Separate outcomes for damage and battery hazards | Each needs different instructions, and both stop troubleshooting with no Back button. |
-| Powerwash lives in one shared file, merged in when workflows load | The technician reviews one copy; the engine doesn't need to know about it. |
-| `review_status` on every file, with a Draft banner | No unreviewed procedure can look official. |
-| The assistant only points to the school office | Tickets, loaners and damage reports stay with technicians (GoGuardian), outside this app. |
+| The browser never calls FastAPI | No CORS setup, no public API address, and the wizard stays unchanged. |
+| Uncached, request-time API calls | Content edits appear immediately, and `next build` doesn't need the backend. Fine at district scale; caching can be added later. |
+| React `cache()` on `getWorkflow` | The page title and the page content share one API call per visit. |
+| Backend validates everything at startup | A broken file stops the server instead of reaching a student. |
+| `APP_ENV` defaults to `production` | Forgetting to set it hides drafts instead of exposing them. |
+| Workflow logic lives in plain functions, not in components | Testable without a browser. |
+| Workflows are data (JSON), not code | Content can change without code changes. |
+| JSON uses `snake_case` | Matches Python, so no renaming between layers. |
+| Separate outcomes for damage and battery hazards | Each needs different instructions, and both stop troubleshooting. |
+| Powerwash lives in one shared file | The technician reviews one copy. |
+| The assistant only points to the school office | Tickets, loaners, and damage reports stay with technicians (GoGuardian). |
+| No text inputs anywhere | Nobody can type student information into the app. |
 
-## Planned phases
+## Phases
 
 | Phase | Adds |
 |---|---|
 | 1 | Next.js interface + one workflow |
-| 1.5 | 8 student Chromebook workflows, safety rules, Powerwash procedure (this phase) |
-| 2 | FastAPI backend serving workflows from `knowledge_base/` |
-| 3 | Wi-Fi and connectivity workflows (district-specific process) |
-| 4 | Session logging and resolution tracking (Firestore) |
-| 5 | Optional Gemini classification ("describe your problem") |
-| 6 | Google Workspace sign-in |
+| 1.5 | 8 student Chromebook workflows, safety rules, Powerwash procedure |
+| 2 | FastAPI backend, shared `knowledge_base/`, Codespaces (this phase) |
+| Later | Wi-Fi workflows (district process), session logging, optional AI classification, Google sign-in |

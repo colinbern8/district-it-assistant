@@ -1,34 +1,50 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import LoadingPlaceholder from "@/components/LoadingPlaceholder";
+import TroubleshootingUnavailable from "@/components/TroubleshootingUnavailable";
 import TroubleshootingWizard from "@/components/TroubleshootingWizard";
-import { getAllWorkflows, getWorkflow } from "@/lib/workflows";
+import { ApiUnavailableError, getWorkflow } from "@/lib/workflows";
+
+type Props = PageProps<"/troubleshoot/[workflowId]">;
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { workflowId } = await params;
+  try {
+    const workflow = await getWorkflow(workflowId);
+    return { title: workflow ? `${workflow.title} | District IT Help` : "Not found" };
+  } catch {
+    return { title: "District IT Help" };
+  }
+}
 
 /**
- * Tells Next.js every valid workflow id, so each page is built ahead of time.
- * Any other id falls through to notFound() below.
+ * The page itself reads nothing from the URL. That lets Next.js prerender it
+ * (header + loading placeholder) once, for every workflow, and show it
+ * instantly when a student clicks a link. The part that needs the URL
+ * (`params`) and the API lives inside <Suspense> and streams in right after.
  */
-export function generateStaticParams() {
-  return getAllWorkflows().map((workflow) => ({ workflowId: workflow.id }));
+export default function TroubleshootPage({ params }: Props) {
+  return (
+    <Suspense fallback={<LoadingPlaceholder label="Loading troubleshooting steps" blocks={2} />}>
+      <WorkflowContent params={params} />
+    </Suspense>
+  );
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps<"/troubleshoot/[workflowId]">): Promise<Metadata> {
+async function WorkflowContent({ params }: Pick<Props, "params">) {
   const { workflowId } = await params;
-  const workflow = getWorkflow(workflowId);
-  return { title: workflow ? `${workflow.title} | District IT Help` : "Not found" };
-}
 
-/** Server component: looks up the workflow, then hands it to the client wizard. */
-export default async function TroubleshootPage({
-  params,
-}: PageProps<"/troubleshoot/[workflowId]">) {
-  const { workflowId } = await params;
-  const workflow = getWorkflow(workflowId);
-
-  if (!workflow) {
-    notFound();
+  let workflow;
+  try {
+    workflow = await getWorkflow(workflowId);
+  } catch (error) {
+    if (error instanceof ApiUnavailableError) return <TroubleshootingUnavailable />;
+    throw error;
   }
+
+  // Called outside the try/catch: notFound() works by throwing a special error.
+  if (!workflow) notFound();
 
   return <TroubleshootingWizard workflow={workflow} />;
 }

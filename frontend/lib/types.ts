@@ -1,9 +1,9 @@
 /**
  * Shared types for troubleshooting workflows.
  *
- * These mirror the JSON files in data/ exactly (including the snake_case
- * property names), so the JSON can be used without conversion. The Python
- * backend in Phase 2 will use the same field names.
+ * These mirror the JSON returned by the FastAPI backend (see
+ * backend/models.py), including the snake_case property names. The backend
+ * loads and validates all content; the frontend trusts its responses.
  */
 
 // ---------------------------------------------------------------------------
@@ -34,31 +34,11 @@ export const STOP_OUTCOMES: readonly Outcome[] = [
   OUTCOME_ESCALATE_SAFETY,
 ];
 
-// ---------------------------------------------------------------------------
-// Categories, in the order they appear on the home page.
-// ---------------------------------------------------------------------------
-
-export const CATEGORIES = [
-  { id: "power_startup", label: "Power and startup" },
-  { id: "wifi_connectivity", label: "Wi-Fi and connectivity" },
-  { id: "audio_camera_mic", label: "Audio, camera, and microphone" },
-  { id: "browser_apps", label: "Browser and applications" },
-  { id: "login_account", label: "Login and account access" },
-] as const;
-
-export type CategoryId = (typeof CATEGORIES)[number]["id"];
-
-// ---------------------------------------------------------------------------
-// Review status: every file stays "draft" until a district technician
-// approves it. Drafts show a banner in the app.
-// ---------------------------------------------------------------------------
-
-export const REVIEW_STATUSES = ["draft", "approved"] as const;
-export type ReviewStatus = (typeof REVIEW_STATUSES)[number];
+/** "draft" until a district technician approves it. Drafts show a banner. */
+export type ReviewStatus = "draft" | "approved";
 
 /** "caution" = yellow box. "data_loss" = red box, used for Powerwash. */
-export const WARNING_LEVELS = ["caution", "data_loss"] as const;
-export type WarningLevel = (typeof WARNING_LEVELS)[number];
+export type WarningLevel = "caution" | "data_loss";
 
 export type Answer = "yes" | "no";
 
@@ -81,25 +61,34 @@ export interface WorkflowStep {
   no: string;
 }
 
-/** A reusable set of steps (e.g. Powerwash) that workflows can include. */
-export interface SharedProcedure {
-  id: string;
-  review_status: ReviewStatus;
-  /** The step id that workflows point to in order to start this procedure. */
-  entry_step: string;
-  steps: WorkflowStep[];
-}
-
 export interface Workflow {
   id: string;
   version: number;
-  category: CategoryId;
+  /** A category id from knowledge_base/catalog.json, e.g. "power_startup". */
+  category: string;
   review_status: ReviewStatus;
   title: string;
   summary: string;
   estimated_minutes: number;
   start_step: string;
-  /** Ids of shared procedures whose steps get added to this workflow. */
+  /** Shared procedures (e.g. "powerwash") the backend already merged into steps. */
   includes?: string[];
   steps: WorkflowStep[];
+}
+
+/** One home-page card, from GET /api/workflows. */
+export interface WorkflowSummary {
+  id: string;
+  title: string;
+  summary: string;
+  category: string;
+  estimated_minutes: number;
+  review_status: ReviewStatus;
+}
+
+/** A category and its visible workflows, in catalog order. */
+export interface CategoryGroup {
+  id: string;
+  label: string;
+  workflows: WorkflowSummary[];
 }
